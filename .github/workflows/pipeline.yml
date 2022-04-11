@@ -52,8 +52,6 @@ jobs:
         if: failure()
         with:
           severity: error
-          username: ${{ github.actor }}
-          description: ${{ github.action }}
           details: Build error.
           footer: ${{ github.repository }}
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
@@ -76,8 +74,6 @@ jobs:
         if: success()
         with:
           severity: info
-          username: ${{ github.actor }}
-          description: ${{ github.action }}
           details: A new version has been released!
           footer: ${{ github.repository }}
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
