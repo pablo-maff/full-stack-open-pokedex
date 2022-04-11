@@ -11,7 +11,6 @@ on:
 
 jobs:
   simple_deployment_pipeline:
-    if: github.event_name == 'push'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -33,7 +32,7 @@ jobs:
           start: npm run start-prod
           wait-on: http://localhost:5000
   run_deployment:
-    if: ${{ (github.event_name == 'push') && (!contains(join(github.event.commits.*.message, ', '), '#skip')) }}
+    if: ${{ !contains(join(github.event.commits.*.message, ', '), '#skip') }}
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
     steps:
@@ -52,11 +51,12 @@ jobs:
         if: failure()
         with:
           severity: error
+          username: ${{ github.actor }}
           details: Build error.
           footer: ${{ github.repository }}
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   tag_release:
-    if: ${{ (github.event_name == 'push') && (!contains(join(github.event.commits.*.message, ', '), '#skip')) }}
+    if: ${{ !contains(join(github.event.commits.*.message, ', '), '#skip') }}
     needs: [simple_deployment_pipeline, run_deployment]
     runs-on: ubuntu-20.04
     steps:
@@ -74,6 +74,7 @@ jobs:
         if: success()
         with:
           severity: info
+          username: ${{ github.actor }}
           details: A new version has been released!
           footer: ${{ github.repository }}
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
