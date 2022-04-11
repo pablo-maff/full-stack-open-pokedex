@@ -78,4 +78,28 @@ jobs:
           details: A new version has been released!
           footer: ${{ github.repository }}
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-          
+  health_check:
+    if : github.event_name == 'push'
+    steps:
+    - name: Check the deployed service URL
+      uses: jtalk/url-health-check-action@v2
+      with:
+        url: https://fso-cicd-pokedex.herokuapp.com/
+        max-attempts: 3
+        retry-delay: 3s
+    - name: Healthcheck notification
+      uses: rjstone/discord-webhook-notify@v1
+      if: success()
+      with:
+        severity: info
+        username: ${{ github.actor }}
+        details: Healthcheck passed
+        footer: ${{ github.repository }}
+        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      if: failure()
+      with:
+        severity: error
+        username: ${{ github.actor }}
+        details: Healtcheck failed
+        footer: ${{ github.repository }}
+        webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
