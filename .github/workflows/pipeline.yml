@@ -61,9 +61,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.36.0
         env:
@@ -81,13 +78,14 @@ jobs:
   health_check:
     if : github.event_name == 'push'
     steps:
+    - uses: actions/checkout@v2
     - name: Check the deployed service URL
       uses: jtalk/url-health-check-action@v2
       with:
         url: https://fso-cicd-pokedex.herokuapp.com/
         max-attempts: 3
         retry-delay: 3s
-    - name: Healthcheck notification
+    - name: Healthcheck success notification
       uses: rjstone/discord-webhook-notify@v1
       if: success()
       with:
@@ -96,6 +94,8 @@ jobs:
         details: Healthcheck passed
         footer: ${{ github.repository }}
         webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      - name: Healthcheck failure notification
+      uses: rjstone/discord-webhook-notify@v1
       if: failure()
       with:
         severity: error
