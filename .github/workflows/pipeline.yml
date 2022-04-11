@@ -33,7 +33,7 @@ jobs:
           wait-on: http://localhost:5000
   run_deployment:
     if: ${{ (github.event_name == 'push') && (!contains(join(github.event.commits.*.message, ', '), '#skip')) }}
-    needs: [simple_deployment_pipeline]
+    needs: [linting_and_testing]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -57,7 +57,7 @@ jobs:
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
   tag_release:
     if: ${{ (github.event_name == 'push') && (!contains(join(github.event.commits.*.message, ', '), '#skip')) }}
-    needs: [simple_deployment_pipeline, run_deployment]
+    needs: [linting_and_testing, run_deployment]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
